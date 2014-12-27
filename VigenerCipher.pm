@@ -35,7 +35,7 @@ sub new
 				}
 			}
 		} else {
-			for (my $i = 32; $i <= 254; $i++) {
+			for (my $i = 0; $i <= 254; $i++) {
 				my $chr = chr($i);
 				if ($chr =~ /[$regex]/) {
 					$self->{_special} .= $chr;
