@@ -17,12 +17,34 @@ sub new
 {
 	my $class = shift;
 	my $key = shift;
-	my $self = {
-		# these characters are used
-		_useable => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 ',
-		# special characters allowed
-		_special => '!@#$%^&*()-_+={[}]|;:\'"<,>.?/~\`',
-	};
+	my $custom = shift;
+	my $self = {};
+
+	# escape these characters for PCRE regex flavor
+	my $regex = join('', map {'\\'.$_} split //, '.^$*+?()[]{\|');
+
+	{
+		no warnings 'uninitialized';
+		if (length($custom) >= 1) {
+			for ( 0 .. length($custom) - 1 ) {
+				my $chr = substr($custom, $_, 1);
+				if ($chr =~ /[$regex]/) {
+					$self->{_special} .= $chr;
+				} else {
+					$self->{_useable} .= $chr;
+				}
+			}
+		} else {
+			for (my $i = 32; $i <= 126; $i++) {
+				my $chr = chr($i);
+				if ($chr =~ /[$regex]/) {
+					$self->{_special} .= $chr;
+				} else {
+					$self->{_useable} .= $chr;
+				}
+			}
+		}
+	}
 
 	$self->{_key} = $key;
 	$self->{_total_c} = length($self->{_useable}) + length($self->{_special});
@@ -69,7 +91,7 @@ sub validate
 		}
 	}
 
-	my $reg = '^[A-Za-z0-9\s'.join('', map { "\\".$_ } split //, $self->{_special}).']+$';
+	my $reg = '^['.join('', $self->{_useable}).join('', map { "\\".$_ } split //, $self->{_special}).']+$';
 
 	if ($string_to_validate !~ /$reg/) {
 		$@ = "Unsupported characters found in string.  Only ASCII characters are supported.";
