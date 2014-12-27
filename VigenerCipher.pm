@@ -35,7 +35,7 @@ sub new
 				}
 			}
 		} else {
-			for (my $i = 32; $i <= 126; $i++) {
+			for (my $i = 32; $i <= 254; $i++) {
 				my $chr = chr($i);
 				if ($chr =~ /[$regex]/) {
 					$self->{_special} .= $chr;
@@ -91,7 +91,7 @@ sub validate
 		}
 	}
 
-	my $reg = '^['.join('', $self->{_useable}).join('', map { "\\".$_ } split //, $self->{_special}).']+$';
+	my $reg = '^['.join('', $self->{_useable}).join('', map { ($_ =~ /\n/) ? '\n' : "\\".$_ } split //, $self->{_special}).']+$';
 
 	if ($string_to_validate !~ /$reg/) {
 		$@ = "Unsupported characters found in string.  Only ASCII characters are supported.";
