@@ -1,5 +1,13 @@
 #!/usr/bin/perl
 
+##############
+# just a simple vigener cipher written in Perl
+#
+# encrypts a string using the ASCII table and a key,
+# as long as you have the key, you can decrypt vigener cipher
+# using this package
+# useage in test-vigener.pl
+
 package VigenerCipher;
 
 use strict;
@@ -8,15 +16,17 @@ use warnings;
 sub new
 {
 	my $class = shift;
+	my $key = shift;
 	my $self = {
-		_key => shift,
 		# these characters are used
 		_useable => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 ',
 		# special characters allowed
 		_special => '!@#$%^&*()-_+={[}]|;:\'"<,>.?/~\`',
 	};
 
+	$self->{_key} = $key;
 	$self->{_total_c} = length($self->{_useable}) + length($self->{_special});
+	#print $self->{_total_c};die;
 	$self->{_fullstring} = $self->{_useable} . $self->{_special};
 
 	my %key_map = (); my $last = 0;
@@ -28,6 +38,23 @@ sub new
 	return $self;
 }
 
+sub setKey
+{
+	# reset the key
+	my $self = shift;
+	my $key = shift;
+
+	{
+		no warnings 'uninitialized';
+		if (length($key) == 0) {
+			$@ = 'The key is not set.';
+			return undef;
+		}
+	}
+
+	$self->{_key} = $key;
+	return 1;
+}
 
 sub validate
 {
@@ -90,7 +117,11 @@ sub _encrypt_algo
 				$change = $a - $b;
 				if ($change < 0) {
 					$change = $self->{_total_c} - ($change * -1);
-				} 
+				}
+				my $tmp = substr($self->{_fullstring}, $change+1, 1);
+				if ($change + 1 == $self->{_total_c}) {
+					$change = -1;
+				}
 				$encrypted_string.= substr($self->{_fullstring}, $change+1, 1);
 			} else {
 				$@ = "Encryption algo not specified.";
