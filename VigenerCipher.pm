@@ -48,7 +48,6 @@ sub new
 
 	$self->{_key} = $key;
 	$self->{_total_c} = length($self->{_useable}) + length($self->{_special});
-	#print $self->{_total_c};die;
 	$self->{_fullstring} = $self->{_useable} . $self->{_special};
 
 	my %key_map = (); my $last = 0;
